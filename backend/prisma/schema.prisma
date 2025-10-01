@@ -20,11 +20,46 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   password  String
   firstName String
   lastName  String
-  role      Role    @default(USER)
+  role      Role      @default(USER)
+  tickets   Ticket[]  @relation("TicketOwner")
+  assigned  Ticket[]  @relation("TicketAgent")
+  messages  Message[] @relation("UserMessages") // <-- add this
+
+  createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String       @id @default(uuid())
+  description String
+  status      TicketStatus @default(PENDING)
+  ownerId     String
+  owner       User         @relation("TicketOwner", fields: [ownerId], references: [id])
+  agentId     String? // assigned agent
+  agent       User?        @relation("TicketAgent", fields: [agentId], references: [id])
+  messages    Message[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum TicketStatus {
+  PENDING
+  ASSIGNED
+  SOLVED
+  APPROVED
+  CLOSED
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  authorId  String
+  author    User     @relation("UserMessages", fields: [authorId], references: [id]) // <-- add this
+  content   String
   createdAt DateTime @default(now())
 }
