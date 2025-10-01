@@ -4,6 +4,7 @@ import "dotenv/config";
 import userRoutes from "./routes/users";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
+import ticketRoutes from "./routes/tickets";
 import cookieParser from "cookie-parser";
 import path from "path";
 
@@ -24,6 +25,8 @@ app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin/", adminRoutes);
+app.use("/api/tickets", ticketRoutes);
+
 
 app.listen(7000, () => {
   console.log("server running on localhost:7000");

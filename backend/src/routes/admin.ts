@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, TicketStatus } from "@prisma/client";
 import verifyToken from "../middleware/auth";
 import checkRole from "../middleware/role";
 
@@ -85,6 +85,56 @@ router.delete("/:id", verifyToken, checkRole("ADMIN"), async (req: Request, res:
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong" });
+  }
+});
+
+
+// ticket management routes for admin
+router.get("/tickets", verifyToken, checkRole("ADMIN"), async (req: Request, res: Response) => {
+  try {
+    const tickets = await prisma.ticket.findMany({
+      include: {
+        owner: { select: { id: true, email: true, firstName: true, lastName: true } },
+        agent: { select: { id: true, email: true, firstName: true, lastName: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(tickets);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// PATCH /admin/tickets/:id/assign - Admin: Assign ticket to an agent
+router.patch("/tickets/:id/assign", verifyToken, checkRole("ADMIN"), async (req: Request, res: Response) => {
+  const { agentId } = req.body;
+  const { id } = req.params;
+
+  if (!agentId) {
+    return res.status(400).json({ message: "Agent ID is required" });
+  }
+
+  try {
+    // Check if agent exists and has role "AGENT"
+    const agent = await prisma.user.findUnique({ where: { id: agentId } });
+    if (!agent || agent.role !== "AGENT") {
+      return res.status(400).json({ message: "Invalid agent" });
+    }
+
+    const updatedTicket = await prisma.ticket.update({
+      where: { id },
+      data: { agentId, status: TicketStatus.ASSIGNED },
+      include: {
+        owner: { select: { id: true, email: true, firstName: true, lastName: true } },
+        agent: { select: { id: true, email: true, firstName: true, lastName: true } },
+      },
+    });
+
+    res.json(updatedTicket);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Could not assign ticket" });
   }
 });
 
