@@ -60,3 +60,89 @@ export const signOut = async () => {
     throw new Error("Error during sign out");
   }
 };
+
+
+//admin
+
+export const getAllUsers = async () => {
+  const res = await fetch(`${API_BASE_URL}/api/admin/users`, {
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to fetch users");
+  return res.json();
+};
+
+export const updateUserRole = async (userId: string, role: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/admin/${userId}`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) throw new Error("Failed to update role");
+  return res.json();
+};
+
+export const deleteUser = async (userId: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/admin/${userId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to delete user");
+  return res.json();
+};
+
+export const getAllTickets = async () => {
+  const res = await fetch(`${API_BASE_URL}/api/admin/tickets`, {
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to fetch tickets");
+  return res.json();
+};
+
+export const assignTicketToAgent = async (ticketId: string, agentId: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/admin/tickets/${ticketId}/assign`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ agentId }),
+  });
+  if (!res.ok) throw new Error("Failed to assign ticket");
+  return res.json();
+};
+
+
+
+
+//user
+export const createTicket = async (title: string, description: string ) => {
+  const response = await fetch(`${API_BASE_URL}/api/tickets`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, description }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create ticket");
+  }
+
+  return response.json();
+};
+
+export const getMyTickets = async () => {
+  const res = await fetch(`${API_BASE_URL}/api/tickets`, {
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to fetch tickets");
+  return res.json();
+};
+
+export const approveTicket = async (ticketId: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/tickets/${ticketId}/approve`, {
+    method: "PATCH",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to approve ticket");
+  return res.json();
+};

@@ -11,10 +11,8 @@ const Dashboard = () => {
             return <AdminDashboard />;
         case "AGENT":
             return <AgentDashboard />;
-        case "USER":
-            return <UserDashboard />;
         default:
-            return <div>Invalid role</div>;
+            return <UserDashboard />;     
     }
 }
 export default Dashboard;

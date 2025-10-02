@@ -12,7 +12,8 @@ import { useAppContext } from "./contexts/AppContext";
 import ProtectedRoute from "./contexts/ProtectedRoute";
 
 const App = () => {
-  const isLoggedIn = useAppContext()
+  const { isLoggedIn } = useAppContext();
+
   return (
     <Router>
       <Routes>
@@ -26,7 +27,7 @@ const App = () => {
             )
           }
         />
-         <Route
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
@@ -36,25 +37,18 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
-        <Route
-          path="/search"
-          element={
-            <Layout>
-              <p>Search Page</p>
-            </Layout>
-          }
-        />
-
         <Route
           path="/register"
           element={
-            <Layout>
-              <Register />
-            </Layout>
+            isLoggedIn ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Layout>
+                <Register />
+              </Layout>
+            )
           }
         />
-
         <Route
           path="/sign-in"
           element={
@@ -63,8 +57,6 @@ const App = () => {
             </Layout>
           }
         />
-
-        {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

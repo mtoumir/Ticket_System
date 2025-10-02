@@ -36,51 +36,70 @@ const SignIn = () => {
   });
 
   return (
-    <form className="flex flex-col gap-5" onSubmit={onSubmit}>
-      <h2 className="text-3xl font-bold">Sign In</h2>
-      <label className="text-gray-700 text-sm font-bold flex-1">
-        Email
-        <input
-          type="email"
-          className="border rounded w-full py-1 px-2 font-normal"
-          {...register("email", { required: "This field is required" })}
-        ></input>
-        {errors.email && (
-          <span className="text-red-500">{errors.email.message}</span>
-        )}
-      </label>
-      <label className="text-gray-700 text-sm font-bold flex-1">
-        Password
-        <input
-          type="password"
-          className="border rounded w-full py-1 px-2 font-normal"
-          {...register("password", {
-            required: "This field is required",
-            minLength: {
-              value: 6,
-              message: "Password must be at least 6 characters",
-            },
-          })}
-        ></input>
-        {errors.password && (
-          <span className="text-red-500">{errors.password.message}</span>
-        )}
-      </label>
-      <span className="flex items-center justify-between">
-        <span className="text-sm">
-          Not Registered?{" "}
-          <Link className="underline" to="/register">
-            Create an account here
+    <div className="mt-28 flex items-center justify-center ">
+      <form
+        className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md space-y-6"
+        onSubmit={onSubmit}
+      >
+        <h2 className="text-3xl font-bold text-center text-gray-800">
+          Sign In
+        </h2>
+
+        {/* Email Field */}
+        <div className="flex flex-col">
+          <label className="mb-2 font-semibold text-gray-700">Email</label>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            className={`border rounded-lg p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            }`}
+            {...register("email", { required: "This field is required" })}
+          />
+          {errors.email && (
+            <span className="text-red-500 mt-1">{errors.email.message}</span>
+          )}
+        </div>
+
+        {/* Password Field */}
+        <div className="flex flex-col">
+          <label className="mb-2 font-semibold text-gray-700">Password</label>
+          <input
+            type="password"
+            placeholder="Enter your password"
+            className={`border rounded-lg p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            }`}
+            {...register("password", {
+              required: "This field is required",
+              minLength: {
+                value: 6,
+                message: "Password must be at least 6 characters",
+              },
+            })}
+          />
+          {errors.password && (
+            <span className="text-red-500 mt-1">{errors.password.message}</span>
+          )}
+        </div>
+
+        {/* Links and Button */}
+        <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4">
+          <Link
+            className="text-sm text-blue-600 hover:underline"
+            to="/register"
+          >
+            Not Registered? Create an account
           </Link>
-        </span>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white p-2 font-bold hover:bg-blue-500 text-xl"
-        >
-          Login
-        </button>
-      </span>
-    </form>
+          <button
+            type="submit"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-200"
+          >
+            Login
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
