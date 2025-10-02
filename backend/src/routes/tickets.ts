@@ -31,18 +31,34 @@ router.post("/", verifyToken, checkRole("USER"), async (req: Request, res: Respo
 });
 
 // Get all tickets of the user
+// Get all tickets of the user with messages and agent info
 router.get("/", verifyToken, checkRole("USER"), async (req: Request, res: Response) => {
   try {
     const tickets = await prisma.ticket.findMany({
       where: { ownerId: req.userId },
+      include: {
+        agent: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+        messages: {
+          include: {
+            author: {
+              select: { id: true, firstName: true, lastName: true, role: true },
+            },
+          },
+          orderBy: { createdAt: "asc" }, // so messages show in chronological order
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
+
     res.json(tickets);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Could not fetch tickets" });
   }
 });
+
 
 // Update ticket status from SOLVED to APPROVED
 router.patch("/:id/approve", verifyToken, checkRole("USER"), async (req: Request, res: Response) => {

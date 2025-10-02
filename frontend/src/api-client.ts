@@ -146,3 +146,39 @@ export const approveTicket = async (ticketId: string) => {
   if (!res.ok) throw new Error("Failed to approve ticket");
   return res.json();
 };
+
+
+//agent 
+
+// agent APIs
+
+export const getAssignedTickets = async () => {
+  const res = await fetch(`${API_BASE_URL}/api/agent/tickets`, {
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to fetch assigned tickets");
+  return res.json();
+};
+
+export const solveTicket = async (ticketId: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/agent/tickets/${ticketId}/status`, {
+    method: "PATCH",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status: "SOLVED" }),
+  });
+  if (!res.ok) throw new Error("Failed to update ticket status");
+  return res.json();
+};
+
+export const addMessageToTicket = async (ticketId: string, content: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/agent/tickets/${ticketId}/messages`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+  });
+  if (!res.ok) throw new Error("Failed to add message");
+  return res.json();
+};
+
