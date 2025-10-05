@@ -100,7 +100,7 @@ export const getAllTickets = async () => {
   return res.json();
 };
 
-export const assignTicketToAgent = async (ticketId: string, agentId: string) => {
+export const assignTicketToAgent = async (ticketId: string, agentId: string | null) => {
   const res = await fetch(`${API_BASE_URL}/api/admin/tickets/${ticketId}/assign`, {
     method: "PATCH",
     credentials: "include",
@@ -110,6 +110,8 @@ export const assignTicketToAgent = async (ticketId: string, agentId: string) => 
   if (!res.ok) throw new Error("Failed to assign ticket");
   return res.json();
 };
+
+
 
 
 

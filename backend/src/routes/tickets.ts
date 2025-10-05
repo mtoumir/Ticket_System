@@ -61,6 +61,7 @@ router.get("/", verifyToken, checkRole("USER"), async (req: Request, res: Respon
 
 
 // Update ticket status from SOLVED to APPROVED
+// Update ticket status from SOLVED to APPROVED
 router.patch("/:id/approve", verifyToken, checkRole("USER"), async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -71,10 +72,24 @@ router.patch("/:id/approve", verifyToken, checkRole("USER"), async (req: Request
     if (ticket.status !== TicketStatus.SOLVED)
       return res.status(400).json({ message: "Only SOLVED tickets can be approved" });
 
+    // Update to APPROVED
     const updated = await prisma.ticket.update({
       where: { id },
       data: { status: TicketStatus.APPROVED },
     });
+
+    // Auto-close ticket after 30 seconds
+    setTimeout(async () => {
+      try {
+        await prisma.ticket.update({
+          where: { id },
+          data: { status: TicketStatus.CLOSED },
+        });
+        console.log(`Ticket ${id} automatically closed after 30 seconds`);
+      } catch (err) {
+        console.error(`Failed to auto-close ticket ${id}:`, err);
+      }
+    }, 30000); // 30000ms = 30 seconds
 
     res.json(updated);
   } catch (err) {

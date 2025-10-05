@@ -111,12 +111,22 @@ router.patch("/tickets/:id/assign", verifyToken, checkRole("ADMIN"), async (req:
   const { agentId } = req.body;
   const { id } = req.params;
 
-  if (!agentId) {
-    return res.status(400).json({ message: "Agent ID is required" });
-  }
-
   try {
-    // Check if agent exists and has role "AGENT"
+    // If agentId is null or empty, unassign the ticket
+    if (!agentId) {
+      const unassignedTicket = await prisma.ticket.update({
+        where: { id },
+        data: { agentId: null, status: TicketStatus.PENDING },
+        include: {
+          owner: { select: { id: true, email: true, firstName: true, lastName: true } },
+          agent: { select: { id: true, email: true, firstName: true, lastName: true } },
+        },
+      });
+
+      return res.json(unassignedTicket);
+    }
+
+    // Otherwise, assign normally
     const agent = await prisma.user.findUnique({ where: { id: agentId } });
     if (!agent || agent.role !== "AGENT") {
       return res.status(400).json({ message: "Invalid agent" });
@@ -134,8 +144,9 @@ router.patch("/tickets/:id/assign", verifyToken, checkRole("ADMIN"), async (req:
     res.json(updatedTicket);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Could not assign ticket" });
+    res.status(500).json({ message: "Could not assign/unassign ticket" });
   }
 });
+
 
 export default router;
