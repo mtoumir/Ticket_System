@@ -61,6 +61,26 @@ export const signOut = async () => {
   }
 };
 
+export const addUserMessageToTicket = async (ticketId: string, content: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/users/tickets/${ticketId}/messages`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+  });
+  if (!res.ok) throw new Error("Failed to add message");
+  return res.json();
+};
+
+export const userDeleteTicket = async (ticketId: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/users/tickets/${ticketId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to delete ticket");
+  return res.json();
+};
+
 
 //admin
 
@@ -112,6 +132,14 @@ export const assignTicketToAgent = async (ticketId: string, agentId: string | nu
 };
 
 
+export const deleteTicket = async (ticketId: string) => {
+  const res = await fetch(`${API_BASE_URL}/api/admin/tickets/${ticketId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error("Failed to delete ticket");
+  return res.json();
+};
 
 
 
@@ -183,4 +211,6 @@ export const addMessageToTicket = async (ticketId: string, content: string) => {
   if (!res.ok) throw new Error("Failed to add message");
   return res.json();
 };
+
+
 

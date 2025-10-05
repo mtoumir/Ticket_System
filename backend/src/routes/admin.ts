@@ -149,4 +149,21 @@ router.patch("/tickets/:id/assign", verifyToken, checkRole("ADMIN"), async (req:
 });
 
 
+router.delete("/tickets/:id", verifyToken, checkRole("ADMIN"), async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const existingTicket = await prisma.ticket.findUnique({ where: { id } });
+    if (!existingTicket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    await prisma.ticket.delete({ where: { id } });
+    res.json({ message: "Ticket deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to delete ticket" });
+  }
+});
+
 export default router;

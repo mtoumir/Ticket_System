@@ -4,13 +4,13 @@ import {
   updateUserRole, 
   deleteUser, 
   getAllTickets, 
-  assignTicketToAgent 
+  assignTicketToAgent,
+  deleteTicket 
 } from "../../api-client";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import Toast from "../../components/Toast";
 import { PieLabelRenderProps } from "recharts";
-import { CheckCircleIcon, TicketIcon, UserGroupIcon } from "@heroicons/react/24/solid";
-
+import { CheckCircleIcon, TicketIcon, UserGroupIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 type User = {
   id: string;
@@ -51,6 +51,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [toast, setToast] = useState<{ message: string; type: "SUCCESS" | "ERROR" } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const showToast = (message: string, type: "SUCCESS" | "ERROR") => {
     setToast({ message, type });
@@ -120,6 +121,19 @@ const AdminDashboard = () => {
     }
   };
 
+  // Admin delete ticket - can delete any ticket regardless of status
+  const handleDeleteTicket = async (ticketId: string) => {
+    try {
+      await deleteTicket(ticketId);
+      setDeleteConfirm(null);
+      fetchTickets();
+      showToast("Ticket deleted successfully", "SUCCESS");
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to delete ticket", "ERROR");
+    }
+  };
+
   const agents = users.filter(u => u.role === "AGENT");
 
   // Analytics
@@ -183,7 +197,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen p-6">
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 right-4 z-50">
@@ -205,8 +219,8 @@ const AdminDashboard = () => {
               <h3 className="text-sm font-medium text-gray-500">Total Users</h3>
               <p className="text-3xl font-bold text-gray-800 mt-2">{users.length}</p>
             </div>
-            <div className="w-12 h-12  rounded-xl flex items-center justify-center">
-              <UserGroupIcon />
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <UserGroupIcon className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </div>
@@ -217,8 +231,8 @@ const AdminDashboard = () => {
               <h3 className="text-sm font-medium text-gray-500">Total Tickets</h3>
               <p className="text-3xl font-bold text-gray-800 mt-2">{tickets.length}</p>
             </div>
-            <div className="w-12 h-12  rounded-xl flex items-center justify-center">
-              <TicketIcon />
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+              <TicketIcon className="w-6 h-6 text-green-600" />
             </div>
           </div>
         </div>
@@ -231,8 +245,8 @@ const AdminDashboard = () => {
                 {tickets.filter(t => t.status === "ASSIGNED").length}
               </p>
             </div>
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <CheckCircleIcon />
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+              <CheckCircleIcon className="w-6 h-6 text-purple-600" />
             </div>
           </div>
         </div>
@@ -347,6 +361,7 @@ const AdminDashboard = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -388,6 +403,35 @@ const AdminDashboard = () => {
                           </option>
                         ))}
                       </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      {deleteConfirm === ticket.id ? (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs text-gray-700 whitespace-nowrap">Delete?</span>
+                          <button
+                            onClick={() => handleDeleteTicket(ticket.id)}
+                            className="text-red-500 hover:text-red-700 text-sm font-medium p-1"
+                            title="Confirm delete"
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(null)}
+                            className="text-gray-500 hover:text-gray-700 text-sm font-medium p-1"
+                            title="Cancel delete"
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setDeleteConfirm(ticket.id)}
+                          className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-all shadow-sm hover:shadow-md"
+                          title="Delete ticket"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

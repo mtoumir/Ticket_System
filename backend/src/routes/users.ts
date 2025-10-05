@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import { check, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import verifyToken from "../middleware/auth";
+import checkRole from "../middleware/role";
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -57,5 +59,72 @@ router.post(
     }
   }
 );
+
+router.post("/tickets/:id/messages", verifyToken, checkRole("USER"), async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    if (!content || content.trim() === "") {
+        return res.status(400).json({ message: "Message content is required" });
+    }
+
+    try {
+        const ticket = await prisma.ticket.findUnique({ where: { id } });
+
+        if (!ticket || ticket.ownerId !== req.userId) {
+            return res.status(404).json({ message: "Ticket not found or not owned by you" });
+        }
+
+        const message = await prisma.message.create({
+            data: {
+                ticketId: id,
+                authorId: req.userId,
+                content,
+            },
+            include: {
+                author: { select: { id: true, firstName: true, lastName: true } },
+            },
+        });
+
+        res.json(message);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to add message" });
+    }
+});
+
+router.delete(
+  "/tickets/:id",
+  verifyToken,
+  checkRole("USER"),
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+      const ticket = await prisma.ticket.findUnique({ where: { id } });
+
+      if (!ticket) {
+        return res.status(404).json({ message: "Ticket not found" });
+      }
+
+      if (ticket.ownerId !== req.userId) {
+        return res
+          .status(403)
+          .json({ message: "You are not authorized to delete this ticket" });
+      }
+
+      // Delete messages first (to avoid foreign key errors)
+      await prisma.message.deleteMany({ where: { ticketId: id } });
+
+      // Then delete the ticket
+      await prisma.ticket.delete({ where: { id } });
+
+      res.json({ message: "Ticket deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to delete ticket" });
+    }
+  }
+);
+
 
 export default router;

@@ -88,7 +88,6 @@ router.post("/tickets/:id/messages", verifyToken, checkRole("AGENT"), async (req
 
     res.json(message);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Failed to add message" });
   }
 });

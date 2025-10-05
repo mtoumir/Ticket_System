@@ -308,9 +308,6 @@ const AgentDashboard = () => {
         {/* Empty State */}
         {tickets.length === 0 && (
           <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto mb-6 bg-white rounded-2xl shadow-sm border border-gray-200 flex items-center justify-center">
-              <span className="text-4xl">📭</span>
-            </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-3">No Assigned Tickets</h3>
             <p className="text-gray-600 text-lg mb-6 max-w-md mx-auto">
               You're all caught up! New tickets will appear here when assigned to you.

@@ -42,7 +42,7 @@ model Ticket {
   owner       User         @relation("TicketOwner", fields: [ownerId], references: [id])
   agentId     String? // assigned agent
   agent       User?        @relation("TicketAgent", fields: [agentId], references: [id])
-  messages    Message[]
+  messages    Message[]    
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
@@ -58,9 +58,9 @@ enum TicketStatus {
 model Message {
   id        String   @id @default(uuid())
   ticketId  String
-  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  ticket    Ticket   @relation(fields: [ticketId], references: [id] , onDelete: Cascade)
   authorId  String
-  author    User     @relation("UserMessages", fields: [authorId], references: [id]) // <-- add this
+  author    User     @relation("UserMessages", fields: [authorId], references: [id]) 
   content   String
   createdAt DateTime @default(now())
 }
