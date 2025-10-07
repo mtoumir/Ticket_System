@@ -265,7 +265,7 @@ const AdminDashboard = () => {
                 outerRadius={80}
                 label={renderLabel}
               >
-                {ticketsChartData.map((entry, index) => (
+                {ticketsChartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
@@ -286,7 +286,7 @@ const AdminDashboard = () => {
                 outerRadius={80}
                 label={renderLabel}
               >
-                {usersChartData.map((entry, index) => (
+                {usersChartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
